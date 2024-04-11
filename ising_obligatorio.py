@@ -3,18 +3,29 @@
 
 import numpy as np
 import plot_animation_ising as my_plot
+import argparse
+
+# Create the parser and add the -s argument
+parser = argparse.ArgumentParser()
+parser.add_argument('-s', action='store_true', help='Start with an ordered lattice')
+args = parser.parse_args()
 
 #Parameters
-N = 400
-num_Monte_Carlo_steps = 50
+N = 150
+num_Monte_Carlo_steps = 90
 Monte_Carlo_step = N**2
 iterations = num_Monte_Carlo_steps*Monte_Carlo_step
-T = 1
+T = 4
 # confs = np.zeros((iterations,N,N), dtype=int)
 confs_mcs = np.zeros((num_Monte_Carlo_steps+1,N,N), dtype=np.int8)
 
 #Create the initial state
-conf = np.random.choice([1, -1], size=(N, N))
+if args.s:
+    conf = np.full((N,N), 1)
+    print('sorted')
+else:
+    conf = np.random.choice([1, -1], size=(N, N))
+    print('unsorted')
 # confs[0] = conf
 confs_mcs[0] = conf
 
