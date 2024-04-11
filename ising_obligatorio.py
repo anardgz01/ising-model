@@ -22,6 +22,7 @@ confs_mcs[0] = conf
 
 #Functions
 def get_neighbourhood(pos):
+    '''Take the chosen position and return an array of the positions of its nearest neighbours (self, up, down, right, left)'''
     global N
     positions = np.zeros(5)
     positions [0] = pos
@@ -32,12 +33,14 @@ def get_neighbourhood(pos):
     return positions
 
 def delta_E (pos):
+    '''Return the energy of the system formed by the given electron and its neighbours'''
     global conf
     positions = get_neighbourhood(pos)
     energy = 2 * conf[pos] * (conf[positions[1]] + conf[positions[2]] + conf[positions[3]] + conf[positions[4]])
     return energy
 
 def p(pos, T=T):
+    '''Return the probability of the transition to a new state with opposite spin'''
     return np.min(1, np.e**(-delta_E(pos)/T))
 
 #Start iterating
