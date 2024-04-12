@@ -33,6 +33,6 @@ for n in N:
         mags_dict[(n,t)] = average_magnetization(f'resultados/mags_{path}.npy')
 
 mags_dict_str_keys = {str(key).replace(' ', ''): value for key, value in mags_dict.items()}
-with open('mags_dict.json', 'w') as f:
+with open('resultados/mags_dict.json', 'w') as f:
     json.dump(mags_dict_str_keys, f, indent=4)
 
