@@ -7,20 +7,28 @@ import argparse
 
 # Create the parser and add the -s argument
 parser = argparse.ArgumentParser()
-parser.add_argument('-s', action='store_true', help='Start with an ordered lattice')
+parser.add_argument('--sorted', action='store_true', help='Start with an ordered lattice')
+parser.add_argument('-t', '--temperature', type=float, default=1, action='store', help='Specify the temperature in Kelvin degrees')
+parser.add_argument('-n', type=int, default=32, action='store', help='Specify the number of electrons per side of the square lattice')
+parser.add_argument('-s', '--steps', type=int, default=100, action='store', help='Specify the number of Monte Carlo steps to be simulated')
+parser.add_argument('-o', '--output', type=str, default='', action='store', help='Specify the string to be appended to the saved arrays')
 args = parser.parse_args()
 
 #Parameters
-N = 150
-num_Monte_Carlo_steps = 90
+N = args.n
+T = args.temperature
+num_Monte_Carlo_steps = args.steps
+path = args.output
+
 Monte_Carlo_step = N**2
 iterations = num_Monte_Carlo_steps*Monte_Carlo_step
-T = 4
 # confs = np.zeros((iterations,N,N), dtype=int)
 confs_mcs = np.zeros((num_Monte_Carlo_steps+1,N,N), dtype=np.int8)
+magnetizations_mcs = np.zeros((num_Monte_Carlo_steps+1))
+avg_magnetizations = np.zeros(num_Monte_Carlo_steps//100)
 
 #Create the initial state
-if args.s:
+if args.sorted:
     conf = np.full((N,N), 1)
     print('sorted')
 else:
@@ -87,6 +95,7 @@ magnetizations_mcs[-1] = magnetization(conf)
 
 # avg_mag, err_mag = average_magnetization()
 
-np.save('confs.npy', confs_mcs)
+np.save(f'confs_{path}.npy', confs_mcs)
+np.save(f'mags_{path}.npy', magnetizations_mcs)
 
 my_plot.plot()
