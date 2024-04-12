@@ -54,6 +54,17 @@ def p(pos, T=T):
     '''Return the probability of the transition to a new state with opposite spin'''
     return min(1, np.e**(-delta_E(pos)/T))
 
+def magnetization(conf):
+    '''Return the magnetization of the system'''
+    global N
+    return np.sum(conf)/N**2
+
+def average_magnetization():
+    global magnetizations_mcs
+    average = np.mean(magnetizations_mcs)
+    error = np.std(magnetizations_mcs)
+    return average, error
+
 #Start iterating
 for t in range(1,iterations):
     pos = (np.random.randint(0, N), np.random.randint(0, N))
@@ -67,10 +78,14 @@ for t in range(1,iterations):
     
     if t % Monte_Carlo_step == 0:
         confs_mcs[t//Monte_Carlo_step] = conf
+        magnetizations_mcs[t//Monte_Carlo_step] = magnetization(conf)
 
     if t % 10000 == 0:
         print(f'Iteration number {t+1} of {iterations-1}')
 confs_mcs[-1] = conf
+magnetizations_mcs[-1] = magnetization(conf)
+
+# avg_mag, err_mag = average_magnetization()
 
 np.save('confs.npy', confs_mcs)
 
