@@ -10,7 +10,7 @@ def update(i):
 def plot():
     fps = 10
     global confs, im
-    confs = np.load('confs.npy')
+    confs = np.load('resultados/confs_.npy')
 
     fig, ax = plt.subplots()
     im = ax.imshow(confs[0], cmap=matplotlib.colors.ListedColormap(['purple', 'lavender']), vmin=-1, vmax=1)
