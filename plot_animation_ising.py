@@ -2,6 +2,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.animation as anim
 import numpy as np
+import glob
 
 def update(i):
     im.set_array(confs[i])
@@ -16,6 +17,26 @@ def plot():
     im = ax.imshow(confs[0], cmap=matplotlib.colors.ListedColormap(['purple', 'lavender']), vmin=-1, vmax=1)
 
     ani = anim.FuncAnimation(fig, update, frames=range(len(confs)), interval=((1/fps)*1000), blit=True)
+
+    plt.show()
+
+def plot_mag():
+    files = glob.glob('resultados/mags*.npy')
+    files.sort()
+    mags = [np.load(file) for file in files]
+
+    fig, ax = plt.subplots()
+
+    for i in range(len(mags)):
+        name = files[i]
+        name = name.replace('resultados/mags_temp_', '')
+        name = name.replace('.npy', '')
+        ax.plot(range(len(mags[i])), mags[i], label = f'{name} K')
+    
+    ax.set_xlabel('Pasos Monte Carlo')
+    ax.set_ylabel('Magnetización')
+    ax.set_title('Evolución de la magnetización para distintas temperaturas')
+    ax.legend()
 
     plt.show()
 
