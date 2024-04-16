@@ -3,7 +3,7 @@ import ising_simulator as ising
 import os
 import json
 
-N = np.array([16, 32, 64, 128])
+N = 64
 T = np.random.uniform(1.5, 3.5, 10)
 T = np.sort(T)
 
@@ -26,11 +26,10 @@ def average_magnetization(file : str) -> tuple[float, float]:
 
 mags_dict = dict()
 
-for n in N:
-    for t in T:
-        path = f'n_{n}_temp_{t:.2f}'
-        ising.simulate(True, t, n, 10, path)
-        mags_dict[(n,t)] = average_magnetization(f'resultados/mags_{path}.npy')
+for t in T:
+    path = f'temp_{t:.2f}'
+    ising.simulate(True, t, N, 10, path)
+    mags_dict[(N,t)] = average_magnetization(f'resultados/mags_{path}.npy')
 
 mags_dict_str_keys = {str(key).replace(' ', ''): value for key, value in mags_dict.items()}
 with open('resultados/mags_dict.json', 'w') as f:
