@@ -65,7 +65,7 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
             magnetizations_mcs[t//Monte_Carlo_step] = magnetization(conf)
 
         if t % 10000 == 0:
-            print(f'Iteration number {t+1} of {iterations-1}')
+            print(f'Iteration number {t+1} of {iterations}')
 
     np.save(f'resultados/confs_{path}.npy', confs_mcs)
     np.save(f'resultados/mags_{path}.npy', magnetizations_mcs)
