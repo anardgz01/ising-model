@@ -27,6 +27,7 @@ for t in T:
     path = f'temp_{t:.2f}'
     ising.simulate(True, t, N, 1000000, path)
 for index, t in enumerate(T):
+    path = f'temp_{t:.6f}'
     mags_avgs, mags_stds = average_magnetization(f'resultados/mags_{path}.npy')
     np.save(f'resultados/mags_avgs_{path}.npy', mags_avgs)
     np.save(f'resultados/mags_stds_{path}.npy', mags_stds)
