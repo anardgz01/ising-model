@@ -21,17 +21,24 @@ def plot():
     plt.show()
 
 def plot_mag():
-    files = glob.glob('resultados/mags*.npy')
-    files.sort()
-    mags = [np.load(file) for file in files]
+    files_avgs = glob.glob('resultados/mags_avgs*.npy')
+    files_stds = glob.glob('resultados/mags_stds*.npy')
+    files_avgs.sort()
+    files_stds.sort()
+    mags_avgs_data = [np.load(file) for file in files_avgs]
+    # mags_stds_data = [np.load(file) for file in files_stds]
 
     fig, ax = plt.subplots()
 
-    for i in range(len(mags)):
-        name = files[i]
-        name = name.replace('resultados/mags_temp_', '')
+    for i in range(len(mags_avgs_data)):
+        name = files_avgs[i]
+        name = name.replace('resultados/mags_avgs_temp_', '')
         name = name.replace('.npy', '')
-        ax.plot(range(len(mags[i])), mags[i], label = f'{name} K')
+
+        ax.plot(range(len(mags_avgs_data[i])), mags_avgs_data[i], label = f'{name} K')
+        # ax.errorbar(range(len(mags_avgs_data[i])), mags_avgs_data[i], yerr=mags_stds_data[i], marker='o', elinewidth=1, barsabove=True, label = f'{name} K')
+        # ax.errorbar(range(len(mags_avgs_data[i])), mags_avgs_data[i], yerr=mags_stds_data[i], label = f'{name} K')
+
     
     ax.set_xlabel('Pasos Monte Carlo')
     ax.set_ylabel('Magnetización')
@@ -41,4 +48,4 @@ def plot_mag():
     plt.show()
 
 if __name__ == '__main__':
-    plot()
+    plot_mag()
