@@ -49,6 +49,7 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
         '''Return the magnetization of the system'''
         return np.sum(conf)/N**2
 
+    landmark = iterations // 20 #print progress every 5%
     #Start iterating
     for t in range(1,iterations+1):
         pos = (np.random.randint(0, N), np.random.randint(0, N))
@@ -64,8 +65,8 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
             confs_mcs[t//Monte_Carlo_step] = conf
             magnetizations_mcs[t//Monte_Carlo_step] = magnetization(conf)
 
-        if t % 1000000 == 0:
-            print(f'Iteration number {t+1} of {iterations}')
+        if t % landmark == 0:
+            print(f'Iteration number {t+1} of {iterations} ({(t // landmark)*5}% completed)')
 
     np.save(f'resultados/confs_{path}.npy', confs_mcs)
     np.save(f'resultados/mags_{path}.npy', magnetizations_mcs)
