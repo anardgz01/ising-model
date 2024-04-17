@@ -43,7 +43,7 @@ def plot_mag():
     ax.set_xlabel('Pasos Monte Carlo')
     ax.set_ylabel('Magnetización')
     ax.set_title('Evolución de la magnetización para distintas temperaturas')
-    ax.set_xlim(0, len(mags_avgs_data))
+    ax.set_xlim(0, len(mags_avgs_data[0]))
     ax.legend()
 
     plt.show()
