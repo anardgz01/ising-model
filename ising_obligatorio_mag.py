@@ -4,16 +4,16 @@ import os
 import plot_animation_ising as myplot
 
 N = 16
-T = np.random.uniform(1.5, 3.5, 10)
+T = np.random.uniform(0, 5, 10)
 T = np.sort(T)
 
 # Delete all contents in 'resultados' folder
-folder_path = '/home/anardgz01/Documentos/GitHub/ising-model/resultados'
-folder_path = 'resultados'
-for filename in os.listdir(folder_path):
-    file_path = os.path.join(folder_path, filename)
-    if os.path.isfile(file_path):
-        os.unlink(file_path)
+# folder_path = '/home/anardgz01/Documentos/GitHub/ising-model/resultados'
+# folder_path = 'resultados'
+# for filename in os.listdir(folder_path):
+#     file_path = os.path.join(folder_path, filename)
+#     if os.path.isfile(file_path):
+#         os.unlink(file_path)
 
 def average_magnetization(file : str) -> tuple[float, float]:
         mags = np.load(file)

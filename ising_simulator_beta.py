@@ -6,6 +6,7 @@ import argparse
 
 def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, path : str):
     Monte_Carlo_step = N**2
+    k_boltzman = 1.380649e-23
     iterations = num_Monte_Carlo_steps*Monte_Carlo_step
     # confs = np.zeros((iterations,N,N), dtype=int)
     magnetizations_mcs = np.zeros((num_Monte_Carlo_steps//100+1))
@@ -52,11 +53,15 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
         for i in range(N):
             for j in range(N):
                 pos_nn = get_neighbourhood((i,j))
-                energy += conf[pos_nn[0]] * (conf[pos_nn[1]] + conf[pos_nn[2]] + conf[pos_nn[3]] + conf[pos_nn[4]])
-        return -0.5*energy
+                energy += -0.5*conf[pos_nn[0]] * (conf[pos_nn[1]] + conf[pos_nn[2]] + conf[pos_nn[3]] + conf[pos_nn[4]])
+        return energy
     
     def factor_conf(conf):
-        return np.e**(-energy_conf(conf)/T)
+        energy = energy_conf(conf)
+        print(energy)
+        factor = np.e**(-energy/T)
+        print(factor)
+        return factor
 
 
     landmark = iterations // 20 #print progress every 5%

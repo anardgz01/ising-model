@@ -1,9 +1,9 @@
 import numpy as np
-import ising_simulator as ising
+import ising_simulator_beta as ising
 import os
 
-N = 16
-T = np.random.uniform(1.5, 3.5, 10)
+N = 32
+T = np.random.uniform(0.01, 5, 10)
 T = np.sort(T)
 
 # Delete all contents in 'resultados' folder
@@ -13,17 +13,14 @@ for filename in os.listdir(folder_path):
     if os.path.isfile(file_path):
         os.unlink(file_path)
 
-def average_magnetization(file : str) -> tuple[float, float]:
-        mags = np.load(file)
-        mags = np.delete(mags, -1)
-        mags_2d = mags.reshape((100, -1))
-        mags_avgs = np.mean(mags_2d, axis=0)
-        mags_stds = np.std(mags_2d, axis=0)
-        return mags_avgs, mags_stds
+def average_magnetization(file_mags : str, file_probs : str) -> tuple[float, float]:
+        mags = np.load(file_mags)
+        probs = np.load(file_probs)
+        mags_avgs = np.sum(probs*mags)
+        return mags_avgs
 
 for t in T:
     path = f'temp_{t:.2f}'
     ising.simulate(True, t, N, 1000, path)
-    mags_avgs, mags_stds = average_magnetization(f'resultados/mags_{path}.npy')
+    mags_avgs = average_magnetization(f'resultados/mags_{path}.npy', f'resultados/probs_{path}.npy')
     np.save(f'resultados/mags_avgs_{path}.npy', mags_avgs)
-    np.save(f'resultados/mags_stds_{path}.npy', mags_stds)
