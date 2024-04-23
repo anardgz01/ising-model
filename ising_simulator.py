@@ -3,6 +3,7 @@ pantalla para diversas temperaturas.'''
 
 import numpy as np
 import plot_animation_ising as my_plot
+import time
 import argparse
 
 def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, path : str):
@@ -51,6 +52,8 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
 
     landmark = iterations // 20 #print progress every 5%
     #Start iterating
+    start_time = time.time()
+
     for t in range(1,iterations+1):
         pos = (np.random.randint(0, N), np.random.randint(0, N))
         probability = p(pos)
@@ -67,6 +70,8 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
 
         if t % landmark == 0:
             print(f'Iteration number {t+1} of {iterations} ({(t // landmark)*5}% completed)')
+    print(f'simulation finished in {time.time() - start_time}')
+
 
     np.save(f'resultados/confs_{path}.npy', confs_mcs)
     np.save(f'resultados/mags_{path}.npy', magnetizations_mcs)
