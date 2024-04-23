@@ -21,30 +21,18 @@ def plot():
     plt.show()
 
 def plot_mag():
-    files_avgs = glob.glob('resultados/mags_avgs*.npy')
-    files_stds = glob.glob('resultados/mags_stds*.npy')
-    files_avgs.sort()
-    files_stds.sort()
-    mags_avgs_data = [np.load(file) for file in files_avgs]
-    # mags_stds_data = [np.load(file) for file in files_stds]
+    exps = np.load('resultados/mags_exps.npy')
 
     fig, ax = plt.subplots()
 
-    for i in range(len(mags_avgs_data)):
-        name = files_avgs[i]
-        name = name.replace('resultados/mags_avgs_temp_', '')
-        name = name.replace('.npy', '')
-
-        ax.plot(range(len(mags_avgs_data[i])), mags_avgs_data[i], label = f'{name} K')
-        # ax.errorbar(range(len(mags_avgs_data[i])), mags_avgs_data[i], yerr=mags_stds_data[i], marker='o', elinewidth=1, barsabove=True, label = f'{name} K')
-        # ax.errorbar(range(len(mags_avgs_data[i])), mags_avgs_data[i], yerr=mags_stds_data[i], label = f'{name} K')
+    ax.plot(exps[0], exps[1])
 
     
-    ax.set_xlabel('Pasos Monte Carlo')
-    ax.set_ylabel('Magnetización')
-    ax.set_title('Evolución de la magnetización para distintas temperaturas')
-    ax.set_xlim(0, len(mags_avgs_data[0]))
-    ax.legend()
+    ax.set_xlabel('Temperaturas (KT)')
+    ax.set_ylabel('Magnetización promedio')
+    ax.set_title('Evolución de la magnetización promedio en función de la temperatura')
+    ax.set_xticks(exps[0])
+    ax.set_xticklabels([f'{temp:.2f}' for temp in exps[0]])
 
     plt.show()
 
