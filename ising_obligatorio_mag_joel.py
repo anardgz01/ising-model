@@ -1,5 +1,6 @@
 import numpy as np
 import ising_simulator_beta as ising
+from concurrent.futures import ThreadPoolExecutor
 
 N = 32
 T = np.linspace(0.01, 5, 10)
@@ -33,12 +34,23 @@ def average_magnetization(file_mags : str):
     mags = np.load(file_mags)
     return np.mean(mags)
 
-for index, t in enumerate(T):
+# for index, t in enumerate(T):
+#     path = f'temp_{t:.2f}'
+#     ising.simulate(True, t, N, 1000000, path)
+#     mags_exps[0,index] = t
+#     mags_exps[1,index] = expected_value(f'resultados/mags_{path}.npy')
+#     mags_exps[2,index] = average_magnetization(f'resultados/mags_{path}.npy')
+#     print(f'finished simulation {index+1} of {len(T)}')
+
+def simulate_and_compute(t, index):
     path = f'temp_{t:.2f}'
     ising.simulate(True, t, N, 1000000, path)
     mags_exps[0,index] = t
     mags_exps[1,index] = expected_value(f'resultados/mags_{path}.npy')
     mags_exps[2,index] = average_magnetization(f'resultados/mags_{path}.npy')
     print(f'finished simulation {index+1} of {len(T)}')
+
+with ThreadPoolExecutor() as executor:
+    executor.map(simulate_and_compute, T, range(len(T)))
 
 np.save(f'resultados/mags_exps.npy', mags_exps)
