@@ -51,14 +51,28 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
                 energy += -0.5*conf[pos_nn[0]] * (conf[pos_nn[1]] + conf[pos_nn[2]] + conf[pos_nn[3]] + conf[pos_nn[4]])
         return energy
     
-    def correlation_function(conf):
+    def correlation_function(conf, distance):
         correlation = np.zeros(N**2)
         index = 0
         for n in range(N):
             for m in range(N):
-                correlation[index] = conf[n, m] * conf[(n+1)%N, m]
+                correlation[index] = conf[n, m] * conf[(n+distance)%N, m]
                 index +=1
-        return np.mean(correlation)/N**2
+        return np.sum(correlation)/N**2
+    
+    def correlation_function_alt(conf, distance):
+        shifted_conf = np.roll(conf, shift=-distance, axis=1)   #this creates a new matrix by rotating places, such as s(m+distance,n) in conf is s(m, n) in shifted_conf.
+        correlation = conf * shifted_conf   #this is a matrix where x(m,n) is the product of conf[m, n] and conf[m+distance, n]. 
+        return np.sum(correlation)/N**2
+    
+    def correlation_function_global(distance, confs_array):
+        correlations = np.zeros(len(confs_array))
+
+        for i, conf in enumerate(confs_array):
+            correlations[i] = correlation_function(conf)
+        return np.mean(correlations)
+
+
 
     percent = 2
     landmark = iterations // (100//percent) #print progress every {percent}%
