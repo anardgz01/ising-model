@@ -1,5 +1,5 @@
 import numpy as np
-import ising_simulator_beta as ising
+import ising_simulator_beta_old_b_factors as ising
 # import os
 
 N = 32
@@ -42,17 +42,18 @@ def average_magnetization(file_mags : str):
     mags = np.load(file_mags)
     return np.mean(mags)
 
-# def average_magnetizations(file_mags : str, file_probs : str) -> tuple[float, float]:
-#         mags = np.load(file_mags)
-#         probs = np.load(file_probs)
-#         mags_avgs = np.sum(probs*mags)
-#         return mags_avgs
+def average_magnetization_factors(file_mags : str, file_probs : str) -> float:
+        mags = np.load(file_mags)
+        probs = np.load(file_probs)
+        mags_exp = np.sum(probs*mags)
+        print(mags_exp)
+        return mags_exp
 
 for index, t in enumerate(T):
     path = f'temp_{t:.2f}'
-    ising.simulate(True, t, N, 1000000, path)
+    ising.simulate(True, t, N, 1000, path)
     mags_exps[0,index] = t
-    mags_exps[1,index] = expected_value(f'resultados/mags_{path}.npy')
+    mags_exps[1,index] = average_magnetization_factors(f'resultados/mags_{path}.npy', f'resultados/probs_{path}.npy')
     mags_exps[2,index] = average_magnetization(f'resultados/mags_{path}.npy')
     print(f'finished simulation {index+1} of {len(T)}')
 

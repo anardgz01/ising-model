@@ -9,7 +9,7 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
     iterations = num_Monte_Carlo_steps*Monte_Carlo_step
     # confs = np.zeros((iterations,N,N), dtype=int)
     magnetizations_mcs = np.zeros((num_Monte_Carlo_steps//100))
-    # factor_conf_mcs = np.zeros((num_Monte_Carlo_steps//100+1))
+    factor_conf_mcs = np.zeros((num_Monte_Carlo_steps//100))
 
     #Create the initial state
     if sorted:
@@ -47,20 +47,20 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
         '''Return the magnetization of the system'''
         return np.abs(np.sum(conf)/N**2)
     
-    # def energy_conf(conf):
-    #     energy = 0.
-    #     for i in range(N):
-    #         for j in range(N):
-    #             pos_nn = get_neighbourhood((i,j))
-    #             energy += -0.5*conf[pos_nn[0]] * (conf[pos_nn[1]] + conf[pos_nn[2]] + conf[pos_nn[3]] + conf[pos_nn[4]])
-    #     return energy
+    def energy_conf(conf):
+        energy = 0.
+        for i in range(N):
+            for j in range(N):
+                pos_nn = get_neighbourhood((i,j))
+                energy += -0.5*conf[pos_nn[0]] * (conf[pos_nn[1]] + conf[pos_nn[2]] + conf[pos_nn[3]] + conf[pos_nn[4]])
+        return energy
     
-    # def factor_conf(conf):
-    #     energy = energy_conf(conf)
-    #     print(energy)
-    #     factor = np.e**(-energy/T)
-    #     print(factor)
-    #     return factor
+    def factor_conf(conf):
+        energy = energy_conf(conf)
+        print(energy)
+        factor = min(2e20,np.e**(-energy/T))
+        print(factor)
+        return factor
 
     percent = 2
     landmark = iterations // (100//percent) #print progress every 2%
@@ -78,16 +78,14 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
         
         if t % (Monte_Carlo_step*100) == 0:
             magnetizations_mcs[t//(Monte_Carlo_step*100)-1] = magnetization(conf)
-            # factor_conf_mcs[t//(Monte_Carlo_step*100)] = factor_conf(conf)
+            factor_conf_mcs[t//(Monte_Carlo_step*100)-1] = factor_conf(conf)
 
         if t % landmark == 0:
             print(f'Iteration number {t+1} of {iterations} ({(t // landmark)*percent}% completed)')
     print(f'simulation finished in {time.time() - start_time}')
 
-    # probability_mcs = factor_conf_mcs/np.sum(factor_conf_mcs)
+    probability_mcs = factor_conf_mcs/np.sum(factor_conf_mcs)
 
     np.save(f'resultados/mags_{path}.npy', magnetizations_mcs)
-
-
-    # np.save(f'resultados/probs_{path}.npy', probability_mcs)
+    np.save(f'resultados/probs_{path}.npy', probability_mcs)
 
