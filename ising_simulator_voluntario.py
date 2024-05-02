@@ -52,28 +52,26 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
                 energy += -0.5*conf[pos_nn[0]] * (conf[pos_nn[1]] + conf[pos_nn[2]] + conf[pos_nn[3]] + conf[pos_nn[4]])
         return energy
     
-    def correlation_function(conf, distance):
-        correlation = np.zeros(N**2)
-        index = 0
-        for n in range(N):
-            for m in range(N):
-                correlation[index] = conf[n, m] * conf[(n+distance)%N, m]
-                index +=1
-        return np.sum(correlation)/N**2
+    # def correlation_function_old(conf, distance):
+    #     correlation = np.zeros(N**2)
+    #     index = 0
+    #     for n in range(N):
+    #         for m in range(N):
+    #             correlation[index] = conf[n, m] * conf[(n+distance)%N, m]
+    #             index +=1
+    #     return np.sum(correlation)/N**2
     
-    def correlation_function_alt(conf, distance):
+    def correlation_function(conf, distance):
         shifted_conf = np.roll(conf, shift=-distance, axis=1)   #this creates a new matrix by rotating places, such as s(m+distance,n) in conf is s(m, n) in shifted_conf.
         correlation = conf * shifted_conf   #this is a matrix where x(m,n) is the product of conf[m, n] and conf[m+distance, n]. 
         return np.sum(correlation)/N**2
     
-    def correlation_function_global(distance, confs_array):
-        correlations = np.zeros(len(confs_array))
+    # def correlation_function_global(distance, confs_array):
+    #     correlations = np.zeros(len(confs_array))
 
-        for i, conf in enumerate(confs_array):
-            correlations[i] = correlation_function(conf)
-        return np.mean(correlations)
-
-
+    #     for i, conf in enumerate(confs_array):
+    #         correlations[i] = correlation_function(conf, distance)
+    #     return np.mean(correlations)
 
     percent = 2
     landmark = iterations // (100//percent) #print progress every {percent}%
@@ -91,7 +89,7 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
         if t % (Monte_Carlo_step*100) == 0:
             magnetizations_mcs[t//(Monte_Carlo_step*100)-1] = magnetization(conf)
             energies_mcs[t//(Monte_Carlo_step*100)-1] = energy_conf(conf)
-            correlations_mcs[t//(Monte_Carlo_step*100)-1] = correlation_function(conf)
+            correlations_mcs[t//(Monte_Carlo_step*100)-1] = correlation_function(conf, 1)
 
         if t % landmark == 0:
             print(f'Iteration number {t+1} of {iterations} ({(t // landmark)*percent}% completed)')
@@ -99,3 +97,5 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
 
     np.save(f'resultados/mags_{path}.npy', magnetizations_mcs)
     np.save(f'resultados/energies_{path}.npy', energies_mcs)
+    np.save(f'resultados/correlations_{path}.npy', correlations_mcs)
+    np.savetxt(f'resultados/correlations_global_{path}.txt', np.mean(correlations_mcs))
