@@ -2,6 +2,7 @@ import numpy as np
 import ising_simulator_voluntario as ising
 from concurrent.futures import ProcessPoolExecutor
 from itertools import product
+import matrix_reshaper
 # from numba import njit, prange
 
 N = np.array([16, 32, 64, 128])
@@ -36,15 +37,26 @@ specific_heat_avgs = np.zeros((4, len(T)*len(N)))
 
 def data_average_magnetization(file_mags : str):
     mags = np.load(file_mags)
-    return np.mean(mags), np.std(mags)
+    std_mags = np.std(mags) / np.sqrt(len(mags))
+    return np.mean(mags), std_mags
 
 def data_mean_energy(N, file_energies : str):
     energies = np.load(file_energies)
-    return np.mean(energies)/(2*N), np.std(energies)/(2*N)
+    std_energies = np.std(energies) / np.sqrt(len(energies))
+    return np.mean(energies)/(2*N), std_energies/(2*N)
 
 def data_average_specific_heat(N, t, file_energies : str):
     energies = np.load(file_energies)
-    return (np.mean(energies**2)-np.mean(energies)**2)/(N**2*t), np.sqrt((np.std(energies**2)/(N**2*t))**2+(np.std(energies)*2*np.mean(energies)/(N**2*t))**2)
+    print(f'len energies es {len(energies)}, min energies es {np.min(energies)}, max energies es {np.max(energies)}')
+    mean_energies = np.mean(energies)
+    mean_energies_sq = np.mean(energies**2)
+    std_energies = np.std(energies) / np.sqrt(len(energies))  # Compute standard error of the mean
+    std_energies_sq = np.std(energies**2) / np.sqrt(len(energies))  # Compute standard error of the mean
+    print(f'error energies is {std_energies}, error energies sq is {std_energies_sq}')
+    # cov_energies = np.cov(energies, energies**2)[0, 1]  # Compute the covariance
+    # print(f'cov_energies es {cov_energies}')
+    return (mean_energies_sq - mean_energies**2)/(N**2*t), np.sqrt((std_energies_sq/(N**2*t))**2 + (std_energies*2*mean_energies/(N**2*t))**2) #+ 2 * std_energies_sq * std_energies * cov_energies/(N**4 * t**2))
+    # return (np.mean(energies**2)-np.mean(energies)**2)/(N**2*t), np.sqrt((np.std(energies**2)/(N**2*t))**2+(np.std(energies)*2*np.mean(energies)/(N**2*t))**2)
 
 # for index, t in enumerate(T):
 #     path = f'temp_{t:.2f}'
@@ -74,7 +86,7 @@ def simulate_and_compute(temp_N_pair : tuple[float, int], index):
         mags_exps[2,index], mags_exps[3,index] = data_average_magnetization(f'resultados/mags_{path}.npy')
         energy_avgs[2,index], energy_avgs[3,index] = data_mean_energy(n, f'resultados/energies_{path}.npy')
         specific_heat_avgs[2,index], specific_heat_avgs[3, index] = data_average_specific_heat(n, t, f'resultados/energies_{path}.npy')
-        print(f'finished simulation {index+1} of {len(T)*len(N)} with temp {t} and N {n} ({(index+1)/(len(T)*len(N))*100:.2f}% completed')
+        print(f'finished simulation {index+1} of {len(T)*len(N)} with temp {t} and N {n}')
     except Exception as e:
         print(f"Exception in thread {index}: {e}")
 
@@ -99,3 +111,5 @@ for index, t in enumerate(T):
 np.save(f'resultados/mags_exps.npy', mags_exps)
 np.save(f'resultados/energies_avgs.npy', energy_avgs)
 np.save(f'resultados/specific_heat_avgs.npy', specific_heat_avgs)
+
+matrix_reshaper.reshape()
