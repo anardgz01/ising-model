@@ -76,6 +76,7 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
     percent = 2
     landmark = iterations // (100//percent) #print progress every {percent}%
     start_time = time.time()
+    measuring_landmark = 10 if num_Monte_Carlo_steps <= 10000 else 100
     
     #Start iterating
     for t in range(1,iterations+1):
@@ -86,7 +87,7 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
         if ksi < probability:
             conf[pos] *= -1
         
-        if t % (Monte_Carlo_step*100) == 0:
+        if t % (Monte_Carlo_step*measuring_landmark) == 0:
             magnetizations_mcs[t//(Monte_Carlo_step*100)-1] = magnetization(conf)
             energies_mcs[t//(Monte_Carlo_step*100)-1] = energy_conf(conf)
             correlations_mcs[t//(Monte_Carlo_step*100)-1] = correlation_function(conf, 1)
@@ -95,7 +96,8 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
             print(f'Iteration number {t+1} of {iterations} ({(t // landmark)*percent}% completed)')
     print(f'simulation finished in {time.time() - start_time}')
 
+    correlation_data = np.array((np.mean(correlations_mcs), np.std(correlations_mcs)))
+    
     np.save(f'resultados/mags_{path}.npy', magnetizations_mcs)
     np.save(f'resultados/energies_{path}.npy', energies_mcs)
-    np.save(f'resultados/correlations_{path}.npy', correlations_mcs)
-    np.savetxt(f'resultados/correlations_global_{path}.txt', np.mean(correlations_mcs))
+    np.savetxt(f'resultados/correlations_global_{path}.txt', correlation_data)

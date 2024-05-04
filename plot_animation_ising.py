@@ -1,6 +1,7 @@
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.animation as anim
+from matplotlib.animation import PillowWriter
 import numpy as np
 import glob
 
@@ -17,6 +18,8 @@ def plot():
     im = ax.imshow(confs[0], cmap=matplotlib.colors.ListedColormap(['purple', 'lavender']), vmin=-1, vmax=1)
 
     ani = anim.FuncAnimation(fig, update, frames=range(len(confs)), interval=((1/fps)*1000), blit=True)
+
+    # ani.save("animation_N_64_T_2_5_s_1000.gif", writer=PillowWriter(fps=10))
 
     plt.show()
 
