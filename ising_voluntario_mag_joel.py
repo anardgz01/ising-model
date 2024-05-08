@@ -50,12 +50,11 @@ def data_average_specific_heat(N, t, file_energies : str):
     print(f'len energies es {len(energies)}, min energies es {np.min(energies)}, max energies es {np.max(energies)}')
     mean_energies = np.mean(energies)
     mean_energies_sq = np.mean(energies**2)
-    std_energies = np.std(energies) / np.sqrt(len(energies))  # Compute standard error of the mean
-    std_energies_sq = np.std(energies**2) / np.sqrt(len(energies))  # Compute standard error of the mean
+    std_energies = np.std(energies)  # Compute standard error of the mean
+    std_energies_sq = np.std(energies**2)   # Compute standard error of the mean
     print(f'error energies is {std_energies}, error energies sq is {std_energies_sq}')
-    # cov_energies = np.cov(energies, energies**2)[0, 1]  # Compute the covariance
-    # print(f'cov_energies es {cov_energies}')
-    return (mean_energies_sq - mean_energies**2)/(N**2*t), np.sqrt((std_energies_sq/(N**2*t))**2 + (2*std_energies*mean_energies/(N**2*t))**2) #+ 2 * std_energies_sq * std_energies * cov_energies/(N**4 * t**2))
+    return (mean_energies_sq - mean_energies**2)/(N**2*t), std_energies_sq/(N**2*t) + 2*std_energies*mean_energies/(N**2*t) #+ 2 * std_energies_sq * std_energies * cov_energies/(N**4 * t**2))
+    # return (mean_energies_sq - mean_energies**2)/(N**2*t), np.sqrt((std_energies_sq/(N**2*t))**2 + (2*std_energies*mean_energies/(N**2*t))**2) #+ 2 * std_energies_sq * std_energies * cov_energies/(N**4 * t**2))
     # return (np.mean(energies**2)-np.mean(energies)**2)/(N**2*t), np.sqrt((np.std(energies**2)/(N**2*t))**2+(np.std(energies)*2*np.mean(energies)/(N**2*t))**2)
 
 # for index, t in enumerate(T):
