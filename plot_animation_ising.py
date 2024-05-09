@@ -58,16 +58,16 @@ def plot_voluntario():
     T = np.array([1.50, 1.72, 1.94, 2.17, 2.39, 2.61, 2.83, 3.06, 3.28, 3.50])
 
     for i in range(1,5):
-        axes_mags[0].errorbar(mags_avgs[1:, 0], mags_avgs[1:, i], yerr=mags_errs[1:, i], label=f'N = {N[i-1]}')
-        axes_energies[0].errorbar(energies_avgs[1:, 0], energies_avgs[1:,i], yerr=energies_errs[1:, i], label=f'N = {N[i-1]}')
-        axes_heat[0].errorbar(heat_avgs[1:, 0], heat_avgs[1:, i], yerr=heat_errs[1:,i ], label=f'N = {N[i-1]}')
-        axes_correlations[0].errorbar(correlations_avgs[1:, 0], correlations_avgs[1:, i], yerr=correlations_errs[1:, i], label=f'N = {N[i-1]}')
+        axes_mags[0].errorbar(mags_avgs[1:, 0], mags_avgs[1:, i], yerr=mags_errs[1:, i], label=f'N = {N[i-1]}', marker='o', markersize=3, capsize=3)
+        axes_energies[0].errorbar(energies_avgs[1:, 0], energies_avgs[1:,i], yerr=energies_errs[1:, i], label=f'N = {N[i-1]}', marker='o', markersize=3, capsize=3)
+        axes_heat[0].errorbar(heat_avgs[1:, 0], heat_avgs[1:, i], yerr=heat_errs[1:,i ], label=f'N = {N[i-1]}', marker='o', markersize=3, capsize=3)
+        axes_correlations[0].errorbar(correlations_avgs[1:, 0], correlations_avgs[1:, i], yerr=correlations_errs[1:, i], label=f'N = {N[i-1]}', marker='o', markersize=3, capsize=3)
 
     for i in range(1,11):
-        axes_mags[1].errorbar(mags_avgs[0, 1:], mags_avgs[i, 1:], yerr=mags_errs[i, 1:], label=f'T = {T[i-1]}')
-        axes_energies[1].errorbar(energies_avgs[0, 1:], energies_avgs[i, 1:], yerr=energies_errs[i, 1:], label=f'T = {T[i-1]}')
-        axes_heat[1].errorbar(heat_avgs[0, 1:], heat_avgs[i, 1:], yerr=heat_errs[i, 1:], label=f'T = {T[i-1]}')
-        axes_correlations[1].errorbar(correlations_avgs[0, 1:], correlations_avgs[i, 1:], yerr=correlations_errs[i, 1:], label=f'T = {T[i-1]}')
+        axes_mags[1].errorbar(mags_avgs[0, 1:], mags_avgs[i, 1:], yerr=mags_errs[i, 1:], label=f'T = {T[i-1]}', marker='o', markersize=3, capsize=3)
+        axes_energies[1].errorbar(energies_avgs[0, 1:], energies_avgs[i, 1:], yerr=energies_errs[i, 1:], label=f'T = {T[i-1]}', marker='o', markersize=3, capsize=3)
+        axes_heat[1].errorbar(heat_avgs[0, 1:], heat_avgs[i, 1:], yerr=heat_errs[i, 1:], label=f'T = {T[i-1]}', marker='o', markersize=3, capsize=3)
+        axes_correlations[1].errorbar(correlations_avgs[0, 1:], correlations_avgs[i, 1:], yerr=correlations_errs[i, 1:], label=f'T = {T[i-1]}', marker='o', markersize=3, capsize=3)
     
     axes_mags[0].set_xlabel('Temperaturas (KT)')
     axes_mags[0].set_ylabel('Magnetización promedio')
@@ -101,14 +101,14 @@ def plot_voluntario():
     axes_correlations[0].set_title('Evolución de la correlación promedio en función de la temperatura')
     axes_correlations[1].set_title('Evolución de la correlación promedio en función de N')
 
-    axes_mags[0].legend()
-    axes_energies[0].legend()
-    axes_heat[0].legend()
-    axes_correlations[0].legend()
-    axes_mags[1].legend()
-    axes_energies[1].legend()
-    axes_heat[1].legend()
-    axes_correlations[1].legend()
+    axes_mags[0].legend(loc=2, bbox_to_anchor=(1, 1))
+    axes_energies[0].legend(loc=2, bbox_to_anchor=(1, 1))
+    axes_heat[0].legend(loc=2, bbox_to_anchor=(1, 1))
+    axes_correlations[0].legend(loc=2, bbox_to_anchor=(1, 1))
+    axes_mags[1].legend(loc=2, bbox_to_anchor=(1, 1))
+    axes_energies[1].legend(loc=2, bbox_to_anchor=(1, 1))
+    axes_heat[1].legend(loc=2, bbox_to_anchor=(1, 1))
+    axes_correlations[1].legend(loc=2, bbox_to_anchor=(1, 1))
 
     axes_mags[0].set_xticks(mags_avgs[1:, 0])
     axes_energies[0].set_xticks(energies_avgs[1:, 0])
