@@ -7,32 +7,31 @@ def reshape():
     energies = np.load('resultados/energies_avgs.npy')
 
     matrices = [mags, energies, heats]
-    names = ['mags', 'energies', 'heats', 'correlations']
+    names = ['mags', 'energies', 'heats']
     n_values = np.unique(mags[0])
     t_values = np.unique(mags[1])
 
-    n_values_augmented = np.insert(n_values, 0, 0)
-    t_values_augmented = np.insert(np.around(t_values, 2), 0, 0)
+    # n_values_augmented = np.insert(n_values, 0, 0)
+    # t_values_augmented = np.insert(np.around(t_values, 2), 0, 0)
 
-    avgs_matrices = [np.zeros((len(t_values)+1, len(n_values)+1)) for _ in range(4)]
-    stderr_matrices = [np.zeros((len(t_values)+1, len(n_values)+1)) for _ in range(4)]
+    avgs_matrices = [np.zeros((len(t_values)+1, len(n_values)+1)) for _ in range(3)]
+    stderr_matrices = [np.zeros((len(t_values)+1, len(n_values)+1)) for _ in range(3)]
 
-    files = glob.glob('resultados/correlations_global_N_*_temp_*.txt')
+    # files = glob.glob('resultados/correlations_global_N_*_temp_*.txt')
     for index, matrix in enumerate(avgs_matrices):
         matrix[1:, 0] = t_values
         matrix[0, 1:] = n_values
             
-        if index < 3:
-            matrix[1:, 1:] = matrices[index][2].reshape(len(t_values), len(n_values))
+        matrix[1:, 1:] = matrices[index][2].reshape(len(t_values), len(n_values))
 
-        elif index == 3:    # Correlations
-            for file in files:
-                name_split = file.split('_')
-                n = float(name_split[3])
-                t = name_split[5]
-                t = float(t.split('.txt')[0]) 
-                data = np.loadtxt(file)
-                matrix[t_values_augmented == t, n_values_augmented == n] = data[0]
+        # elif index == 3:    # Correlations
+        #     for file in files:
+        #         name_split = file.split('_')
+        #         n = float(name_split[3])
+        #         t = name_split[5]
+        #         t = float(t.split('.txt')[0]) 
+        #         data = np.loadtxt(file)
+        #         matrix[t_values_augmented == t, n_values_augmented == n] = data[0]
             
         np.save(f'resultados/matrices_voluntario/avgs_matrix_{names[index]}.npy', matrix)
         np.savetxt(f'resultados/matrices_voluntario/avgs_matrix_{names[index]}.txt', matrix)
@@ -42,17 +41,16 @@ def reshape():
         matrix[1:, 0] = t_values
         matrix[0, 1:] = n_values
         
-        if index < 3:
-            matrix[1:, 1:] = matrices[index][3].reshape(len(t_values), len(n_values))
+        matrix[1:, 1:] = matrices[index][3].reshape(len(t_values), len(n_values))
 
-        elif index == 3:    # Correlations
-            for file in files:
-                name_split = file.split('_')
-                n = float(name_split[3])
-                t = name_split[5]
-                t = float(t.split('.txt')[0]) 
-                data = np.loadtxt(file)
-                matrix[t_values_augmented == t, n_values_augmented == n] = data[1]
+        # elif index == 3:    # Correlations
+        #     for file in files:
+        #         name_split = file.split('_')
+        #         n = float(name_split[3])
+        #         t = name_split[5]
+        #         t = float(t.split('.txt')[0]) 
+        #         data = np.loadtxt(file)
+        #         matrix[t_values_augmented == t, n_values_augmented == n] = data[1]
 
         np.save(f'resultados/matrices_voluntario/stderr_matrix_{names[index]}.npy', matrix)
         np.savetxt(f'resultados/matrices_voluntario/stderr_matrix_{names[index]}.txt', matrix)

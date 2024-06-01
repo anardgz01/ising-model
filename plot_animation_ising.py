@@ -41,37 +41,74 @@ def plot_mag():
 
 def plot_voluntario():
     # Load data
-    data_avgs = [np.load(f'resultados/matrices_voluntario/avgs_matrix_{name}.npy') for name in ['mags', 'energies', 'heats', 'correlations']]
-    data_errs = [np.load(f'resultados/matrices_voluntario/stderr_matrix_{name}.npy') for name in ['mags', 'energies', 'heats', 'correlations']]
+    data_avgs = [np.load(f'resultados/matrices_voluntario/avgs_matrix_{name}.npy') for name in ['mags', 'energies', 'heats']]
+    data_errs = [np.load(f'resultados/matrices_voluntario/stderr_matrix_{name}.npy') for name in ['mags', 'energies', 'heats']]
 
     # Create figures and axes
-    figs, axes = zip(*[plt.subplots(2) for _ in range(4)])
+    figs, axes = zip(*[plt.subplots(2) for _ in range(3)])
 
     N = np.array([16, 32, 64, 128])
     T = np.array([1.50, 1.72, 1.94, 2.17, 2.39, 2.61, 2.83, 3.06, 3.28, 3.50])
 
-    labels = ['Magnetización promedio', 'Energía promedio', 'Calor específico', 'Correlación promedio']
-    titles = ['Evolución de la magnetización promedio en función de la temperatura', 'Evolución de la energía promedio en función de la temperatura', 'Evolución del calor específico en función de la temperatura', 'Evolución de la correlación promedio en función de la temperatura']
+    labels = ['Magnetización promedio', 'Energía promedio', 'Calor específico']
+    titles = ['Evolución de la magnetización promedio en función de la temperatura', 'Evolución de la energía promedio en función de la temperatura', 'Evolución del calor específico en función de la temperatura']
 
-    for avgs, errs, (fig, ax), label, title in zip(data_avgs, data_errs, axes, labels, titles):
+    for avgs, errs, axs, label, title in zip(data_avgs, data_errs, axes, labels, titles):
         for i in range(1, 5):
-            ax[0].errorbar(avgs[1:, 0], avgs[1:, i], yerr=errs[1:, i], label=f'N = {N[i-1]}', marker='o', markersize=3, capsize=3)
+            axs[0].errorbar(avgs[1:, 0], avgs[1:, i], yerr=np.abs(errs[1:, i]), label=f'N = {N[i-1]}', marker='o', markersize=3, capsize=3)
         for i in range(1, 11):
-            ax[1].errorbar(avgs[0, 1:], avgs[i, 1:], yerr=errs[i, 1:], label=f'T = {T[i-1]}', marker='o', markersize=3, capsize=3)
+            axs[1].errorbar(avgs[0, 1:], avgs[i, 1:], yerr=np.abs(errs[i, 1:]), label=f'T = {T[i-1]}', marker='o', markersize=3, capsize=3)
 
-        ax[0].set_xlabel('Temperaturas (KT)')
-        ax[0].set_ylabel(label)
-        ax[1].set_xlabel('N')
-        ax[1].set_ylabel(label)
+        axs[0].set_xlabel('Temperaturas (KT)')
+        axs[0].set_ylabel(label)
+        axs[1].set_xlabel('N')
+        axs[1].set_ylabel(label)
 
-        ax[0].set_title(title)
-        ax[1].set_title(f'Evolución de {label.lower()} en función de N')
+        axs[0].set_title(title)
+        axs[1].set_title(f'Evolución de {label.lower()} en función de N')
 
-        ax[0].legend(loc=2, bbox_to_anchor=(1, 1))
-        ax[1].legend(loc=2, bbox_to_anchor=(1, 1))
+        axs[0].legend(loc=2, bbox_to_anchor=(1, 1))
+        axs[1].legend(loc=2, bbox_to_anchor=(1, 1))
 
-        ax[0].set_xticks(avgs[1:, 0])
-        ax[1].set_xticks(N)
+        axs[0].set_xticks(avgs[1:, 0])
+        axs[1].set_xticks(N)
+
+    corrfig, corrax = plt.subplots(2, 2, figsize=(10, 10))
+    corrfig.suptitle('Correlación en función de la distancia')
+
+    files = glob.glob('resultados/correlations_global_N_*_temp_*.npy')
+
+    def extract_nt(file):
+        name_split = file.split('_')
+        n = int(name_split[3])
+        t = float(name_split[5].split('.npy')[0])
+        return n, t
+
+    files = sorted(glob.glob('resultados/correlations_global_N_*_temp_*.npy'), key=extract_nt)
+
+    def convert_index(index):
+        return index // 2, index % 2
+
+    for file in files:
+        name_split = file.split('_')
+        n = float(name_split[3])
+        t = name_split[5]
+        t = float(t.split('.npy')[0]) 
+        corrdata = np.load(file)
+        # print(np.where(N == n)[0][0])
+        corrax[convert_index(np.where(N == n)[0][0])].errorbar(np.arange(len(corrdata[0])), corrdata[0], yerr=np.abs(corrdata[1]), label=f'T = {t:.2f}')
+        # matrix[t_values_augmented == t, n_values_augmented == n] = data[0]
+
+    for i in range(4):
+        corrax[convert_index(i)].set_ylabel('Correlación')
+        corrax[convert_index(i)].set_xlabel('Distancia (i)')
+        corrax[convert_index(i)].set_title(f'N = {N[i]}')
+        corrax[convert_index(i)].set_xticks(np.arange(N[i]//2))
+        corrax[convert_index(i)].set_xticklabels(np.arange(1, N[i]//2+1))
+    corrax[1,1].set_xticks(np.arange(3,N[3]//2, step=4))
+    corrax[1,0].set_xticks(np.arange(1,N[2]//2, step=2))
+    handles, labels = corrax[convert_index(0)].get_legend_handles_labels()
+    corrfig.legend(handles, labels, loc='center right')
 
     plt.show()
 

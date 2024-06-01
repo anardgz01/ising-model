@@ -9,7 +9,7 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
     iterations = num_Monte_Carlo_steps*Monte_Carlo_step
     magnetizations_mcs = np.zeros((num_Monte_Carlo_steps//100))
     energies_mcs = np.zeros((num_Monte_Carlo_steps//100))
-    correlations_mcs = np.zeros((num_Monte_Carlo_steps//100))
+    correlations_mcs = np.zeros((num_Monte_Carlo_steps//100, N//2))
 
     #Create the initial state
     if sorted:
@@ -90,14 +90,15 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
         if t % (Monte_Carlo_step*measuring_landmark) == 0:
             magnetizations_mcs[t//(Monte_Carlo_step*100)-1] = magnetization(conf)
             energies_mcs[t//(Monte_Carlo_step*100)-1] = energy_conf(conf)
-            correlations_mcs[t//(Monte_Carlo_step*100)-1] = correlation_function(conf, 1)
+            for i in range(N//2):
+                correlations_mcs[t//(Monte_Carlo_step*100)-1, i] = correlation_function(conf, i+1)
 
         if t % landmark == 0:
             print(f'Iteration number {t+1} of {iterations} ({(t // landmark)*percent}% completed)')
     print(f'simulation finished in {time.time() - start_time}')
 
-    correlation_data = np.array((np.mean(correlations_mcs), np.std(correlations_mcs)))
+    correlation_data = np.array((np.mean(correlations_mcs, axis=0), np.std(correlations_mcs, axis=0)))
     
     np.save(f'resultados/mags_{path}.npy', magnetizations_mcs)
     np.save(f'resultados/energies_{path}.npy', energies_mcs)
-    np.savetxt(f'resultados/correlations_global_{path}.txt', correlation_data)
+    np.save(f'resultados/correlations_global_{path}.npy', correlation_data)
