@@ -72,14 +72,15 @@ def simulate_and_compute(temp_N_pair : tuple[float, int], index):
         n = temp_N_pair[1]
         path = f'N_{n}_temp_{t:.2f}'
 
-        if t < 1:
-            iterations = 100000
-        elif t < 2:
-            iterations = 10000
-        else:
-            iterations = 3000
+        # if t < 1:
+        #     iterations = 100000
+        # elif t < 2:
+        #     iterations = 10000
+        # else:
+        #     iterations = 3000
+        iterations = 1000000
 
-        # ising.simulate(True, t, n, iterations, path)
+        ising.simulate(True, t, n, iterations, path)
         mags_exps[0,index] = energy_avgs[0,index] = specific_heat_avgs[0,index] = n
         mags_exps[1,index] = energy_avgs[1,index] = specific_heat_avgs[1,index] = t
         mags_exps[2,index], mags_exps[3,index] = data_average_magnetization(f'resultados/mags_{path}.npy')
@@ -89,12 +90,12 @@ def simulate_and_compute(temp_N_pair : tuple[float, int], index):
     except Exception as e:
         print(f"Exception in thread {index}: {e}")
 
-# with ProcessPoolExecutor(max_workers=10) as executor:
-#     executor.map(simulate_and_compute, product(T, N), range(len(T)*len(N)))
+with ProcessPoolExecutor(max_workers=12) as executor:
+    executor.map(simulate_and_compute, product(T, N), range(len(T)*len(N)))
 
-for index, t in enumerate(T):
-    for j, n in enumerate(N):
-        simulate_and_compute((t, n), index*len(N)+j)
+# for index, t in enumerate(T):
+#     for j, n in enumerate(N):
+#         simulate_and_compute((t, n), index*len(N)+j)
 
 # @njit(parallel=True)
 # def parallel_function():
@@ -111,4 +112,4 @@ np.save(f'resultados/mags_exps.npy', mags_exps)
 np.save(f'resultados/energies_avgs.npy', energy_avgs)
 np.save(f'resultados/specific_heat_avgs.npy', specific_heat_avgs)
 
-matrix_reshaper.reshape()
+# matrix_reshaper.reshape()
