@@ -40,85 +40,38 @@ def plot_mag():
     plt.show()
 
 def plot_voluntario():
-    mags_avgs = np.load('resultados/matrices_voluntario/avgs_matrix_mags.npy')
-    energies_avgs = np.load('resultados/matrices_voluntario/avgs_matrix_energies.npy')
-    heat_avgs = np.load('resultados/matrices_voluntario/avgs_matrix_heats.npy')
-    correlations_avgs = np.load('resultados/matrices_voluntario/avgs_matrix_correlations.npy')
-    mags_errs = np.load('resultados/matrices_voluntario/stderr_matrix_mags.npy')
-    energies_errs = np.load('resultados/matrices_voluntario/stderr_matrix_energies.npy')
-    heat_errs = np.load('resultados/matrices_voluntario/stderr_matrix_heats.npy')
-    correlations_errs = np.load('resultados/matrices_voluntario/stderr_matrix_correlations.npy')
+    # Load data
+    data_avgs = [np.load(f'resultados/matrices_voluntario/avgs_matrix_{name}.npy') for name in ['mags', 'energies', 'heats', 'correlations']]
+    data_errs = [np.load(f'resultados/matrices_voluntario/stderr_matrix_{name}.npy') for name in ['mags', 'energies', 'heats', 'correlations']]
 
-    fig_mags, axes_mags = plt.subplots(2)
-    fig_energies, axes_energies = plt.subplots(2)
-    fig_heat, axes_heat = plt.subplots(2)
-    fig_correlations, axes_correlations = plt.subplots(2)
+    # Create figures and axes
+    figs, axes = zip(*[plt.subplots(2) for _ in range(4)])
 
     N = np.array([16, 32, 64, 128])
     T = np.array([1.50, 1.72, 1.94, 2.17, 2.39, 2.61, 2.83, 3.06, 3.28, 3.50])
 
-    for i in range(1,5):
-        axes_mags[0].errorbar(mags_avgs[1:, 0], mags_avgs[1:, i], yerr=mags_errs[1:, i], label=f'N = {N[i-1]}', marker='o', markersize=3, capsize=3)
-        axes_energies[0].errorbar(energies_avgs[1:, 0], energies_avgs[1:,i], yerr=energies_errs[1:, i], label=f'N = {N[i-1]}', marker='o', markersize=3, capsize=3)
-        axes_heat[0].errorbar(heat_avgs[1:, 0], heat_avgs[1:, i], yerr=heat_errs[1:,i ], label=f'N = {N[i-1]}', marker='o', markersize=3, capsize=3)
-        axes_correlations[0].errorbar(correlations_avgs[1:, 0], correlations_avgs[1:, i], yerr=correlations_errs[1:, i], label=f'N = {N[i-1]}', marker='o', markersize=3, capsize=3)
+    labels = ['Magnetización promedio', 'Energía promedio', 'Calor específico', 'Correlación promedio']
+    titles = ['Evolución de la magnetización promedio en función de la temperatura', 'Evolución de la energía promedio en función de la temperatura', 'Evolución del calor específico en función de la temperatura', 'Evolución de la correlación promedio en función de la temperatura']
 
-    for i in range(1,11):
-        axes_mags[1].errorbar(mags_avgs[0, 1:], mags_avgs[i, 1:], yerr=mags_errs[i, 1:], label=f'T = {T[i-1]}', marker='o', markersize=3, capsize=3)
-        axes_energies[1].errorbar(energies_avgs[0, 1:], energies_avgs[i, 1:], yerr=energies_errs[i, 1:], label=f'T = {T[i-1]}', marker='o', markersize=3, capsize=3)
-        axes_heat[1].errorbar(heat_avgs[0, 1:], heat_avgs[i, 1:], yerr=heat_errs[i, 1:], label=f'T = {T[i-1]}', marker='o', markersize=3, capsize=3)
-        axes_correlations[1].errorbar(correlations_avgs[0, 1:], correlations_avgs[i, 1:], yerr=correlations_errs[i, 1:], label=f'T = {T[i-1]}', marker='o', markersize=3, capsize=3)
-    
-    axes_mags[0].set_xlabel('Temperaturas (KT)')
-    axes_mags[0].set_ylabel('Magnetización promedio')
-    axes_mags[1].set_xlabel('N')
-    axes_mags[1].set_ylabel('Magnetización promedio')
+    for avgs, errs, (fig, ax), label, title in zip(data_avgs, data_errs, axes, labels, titles):
+        for i in range(1, 5):
+            ax[0].errorbar(avgs[1:, 0], avgs[1:, i], yerr=errs[1:, i], label=f'N = {N[i-1]}', marker='o', markersize=3, capsize=3)
+        for i in range(1, 11):
+            ax[1].errorbar(avgs[0, 1:], avgs[i, 1:], yerr=errs[i, 1:], label=f'T = {T[i-1]}', marker='o', markersize=3, capsize=3)
 
-    axes_energies[0].set_xlabel('Temperaturas (KT)')
-    axes_energies[0].set_ylabel('Energía promedio')
-    axes_energies[1].set_xlabel('N')
-    axes_energies[1].set_ylabel('Energía promedio')
+        ax[0].set_xlabel('Temperaturas (KT)')
+        ax[0].set_ylabel(label)
+        ax[1].set_xlabel('N')
+        ax[1].set_ylabel(label)
 
-    axes_heat[0].set_xlabel('Temperaturas (KT)')
-    axes_heat[0].set_ylabel('Calor específico')
-    axes_heat[1].set_xlabel('N')
-    axes_heat[1].set_ylabel('Calor específico')
+        ax[0].set_title(title)
+        ax[1].set_title(f'Evolución de {label.lower()} en función de N')
 
-    axes_correlations[0].set_xlabel('Temperaturas (KT)')
-    axes_correlations[0].set_ylabel('Correlación promedio')
-    axes_correlations[1].set_xlabel('N')
-    axes_correlations[1].set_ylabel('Correlación promedio')
+        ax[0].legend(loc=2, bbox_to_anchor=(1, 1))
+        ax[1].legend(loc=2, bbox_to_anchor=(1, 1))
 
-    axes_mags[0].set_title('Evolución de la magnetización promedio en función de la temperatura')
-    axes_mags[1].set_title('Evolución de la magnetización promedio en función de N')
-
-    axes_energies[0].set_title('Evolución de la energía promedio en función de la temperatura')
-    axes_energies[1].set_title('Evolución de la energía promedio en función de N')
-
-    axes_heat[0].set_title('Evolución del calor específico en función de la temperatura')
-    axes_heat[1].set_title('Evolución del calor específico en función de N')
-
-    axes_correlations[0].set_title('Evolución de la correlación promedio en función de la temperatura')
-    axes_correlations[1].set_title('Evolución de la correlación promedio en función de N')
-
-    axes_mags[0].legend(loc=2, bbox_to_anchor=(1, 1))
-    axes_energies[0].legend(loc=2, bbox_to_anchor=(1, 1))
-    axes_heat[0].legend(loc=2, bbox_to_anchor=(1, 1))
-    axes_correlations[0].legend(loc=2, bbox_to_anchor=(1, 1))
-    axes_mags[1].legend(loc=2, bbox_to_anchor=(1, 1))
-    axes_energies[1].legend(loc=2, bbox_to_anchor=(1, 1))
-    axes_heat[1].legend(loc=2, bbox_to_anchor=(1, 1))
-    axes_correlations[1].legend(loc=2, bbox_to_anchor=(1, 1))
-
-    axes_mags[0].set_xticks(mags_avgs[1:, 0])
-    axes_energies[0].set_xticks(energies_avgs[1:, 0])
-    axes_heat[0].set_xticks(heat_avgs[1:, 0])
-    axes_correlations[0].set_xticks(correlations_avgs[1:, 0])
-
-    axes_mags[1].set_xticks(N)
-    axes_energies[1].set_xticks(N)
-    axes_heat[1].set_xticks(N)
-    axes_correlations[1].set_xticks(N)
+        ax[0].set_xticks(avgs[1:, 0])
+        ax[1].set_xticks(N)
 
     plt.show()
 
