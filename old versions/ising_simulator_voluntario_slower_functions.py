@@ -3,17 +3,16 @@ pantalla para diversas temperaturas.'''
 
 import numpy as np
 import time
-# import cProfile
+import cProfile
 
 def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, path : str):
     #initial parameters
-    min_random_array_size = 10000000     #minimum size of the random values array. Should increase speed and memory usage
-    measuring_landmark = 10
     percent = 2
     Monte_Carlo_step = N**2
     iterations = num_Monte_Carlo_steps*Monte_Carlo_step
     display_landmark = iterations // (100//percent) #print progress every {percent}%
     # measuring_landmark = 10 if num_Monte_Carlo_steps <= 10000 else 100
+    measuring_landmark = 100
 
     #initialize parameters
     magnetizations_mcs = np.zeros((num_Monte_Carlo_steps//measuring_landmark))
@@ -38,29 +37,30 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
     #     positions [3] = (pos[0], (pos[1]+1) % N)
     #     positions [4] = (pos[0], (pos[1]-1) % N)
     #     return positions
-    # def get_neighbourhood(x : int, y : int):
-    #     '''Take the chosen position and return an array of the positions of its nearest neighbours (self, up, down, right, left)'''
-    #     return [
-    #         (x, y),
-    #         ((x+1) % N, y),
-    #         ((x-1) % N, y),
-    #         (x, (y+1) % N),
-    #         (x, (y-1) % N)
-    #     ]
+    def get_neighbourhood(x : int, y : int):
+        '''Take the chosen position and return an array of the positions of its nearest neighbours (self, up, down, right, left)'''
+        return [
+            (x, y),
+            ((x+1) % N, y),
+            ((x-1) % N, y),
+            (x, (y+1) % N),
+            (x, (y-1) % N)
+        ]
 
-    def p(x : int, y : int):
+    def delta_E(x : int, y : int):
         '''Return the energy of the system formed by the given electron and its neighbours'''
-        energy_increment = 2 * conf[x,y] * (conf[(x+1) % N, y] + conf[(x-1) % N, y] + conf[x, (y+1) % N] + conf[x, (y-1) % N])
-        return possible_probabilities[energy_increment]
+        positions = get_neighbourhood(x, y)
+        energy_increment = 2 * conf[positions[0]] * (conf[positions[1]] + conf[positions[2]] + conf[positions[3]] + conf[positions[4]])
+        return energy_increment
 
     def initial_p_calcs():
         '''Return the probabilities of the transitions to a new state with opposite spin. Only called once to define the list'''
         possible_probabilities = {
-        8 : min(1, np.e**(-8/T)),
-        4 : min(1, np.e**(-4/T)),
+        8 : min(1, np.e**(8/T)),
+        4 : min(1, np.e**(4/T)),
         0 : min(1, np.e**(0/T)),
-        -4 : min(1, np.e**(4/T)),
-        -8 : min(1, np.e**(8/T))
+        -4 : min(1, np.e**(-4/T)),
+        -8 : min(1, np.e**(-8/T))
         }
         return possible_probabilities
         
@@ -68,9 +68,9 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
     #     '''Return the probability of the transition to a new state with opposite spin'''
     #     return min(1, np.e**(-delta_E(pos)/T))
     
-    # def p_old(x : int, y : int):
-    #     '''Return the probability of the transition to a new state with opposite spin'''
-    #     return possible_probabilities[delta_E(x,y)]
+    def p(x : int, y : int):
+        '''Return the probability of the transition to a new state with opposite spin'''
+        return possible_probabilities[delta_E(x,y)]
 
     def magnetization(conf):
         '''Return the magnetization of the system'''
@@ -131,6 +131,7 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
     stop = False
     last_measure_index = len(magnetizations_mcs)-1
     measuring_landmark_iterations = measuring_landmark*Monte_Carlo_step
+    min_random_array_size = 10000000     #minimum size of the random values array. Should increase speed and memory usage
     min_landmark = (min_random_array_size // measuring_landmark_iterations + 1) * measuring_landmark_iterations
 
     while True:
@@ -160,9 +161,9 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
 
     print(f'simulation finished in {time.time() - start_time}')
 
-    correlation_data = np.array((np.mean(correlations_mcs, axis=0), np.std(correlations_mcs, axis=0)))
+    # correlation_data = np.array((np.mean(correlations_mcs, axis=0), np.std(correlations_mcs, axis=0)))
     
-    np.save(f'resultados/mags_{path}.npy', magnetizations_mcs)
-    np.save(f'resultados/energies_{path}.npy', energies_mcs)
-    np.save(f'resultados/correlations_global_{path}.npy', correlation_data)
-# cProfile.run('simulate(True, 2.3, 32, 1000, "test")')
+    # np.save(f'resultados/mags_{path}.npy', magnetizations_mcs)
+    # np.save(f'resultados/energies_{path}.npy', energies_mcs)
+    # np.save(f'resultados/correlations_global_{path}.npy', correlation_data)
+cProfile.run('simulate(True, 2.3, 32, 5000, "test")')
