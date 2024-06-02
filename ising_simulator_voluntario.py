@@ -58,11 +58,11 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
     def initial_p_calcs():
         '''Return the probabilities of the transitions to a new state with opposite spin. Only called once to define the list'''
         possible_probabilities = {
-        8 : min(1, np.e**(8/T)),
-        4 : min(1, np.e**(4/T)),
+        8 : min(1, np.e**(-8/T)),
+        4 : min(1, np.e**(-4/T)),
         0 : min(1, np.e**(0/T)),
-        -4 : min(1, np.e**(-4/T)),
-        -8 : min(1, np.e**(-8/T))
+        -4 : min(1, np.e**(4/T)),
+        -8 : min(1, np.e**(8/T))
         }
         return possible_probabilities
         
