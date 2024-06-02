@@ -65,7 +65,8 @@ def data_average_specific_heat(N, t, file_energies : str):
 #     mags_exps[2,index] = data_average_magnetization(f'resultados/mags_{path}.npy')
 #     print(f'finished simulation {index+1} of {len(T)}')
 
-def run_simulation(temp_N_pair : tuple[float, int]):
+def simulate_and_compute(temp_N_pair : tuple[float, int], index):
+    global mags_exps, energy_avgs, specific_heat_avgs
     try:
         t = temp_N_pair[0]
         n = temp_N_pair[1]
@@ -77,32 +78,24 @@ def run_simulation(temp_N_pair : tuple[float, int]):
         #     iterations = 10000
         # else:
         #     iterations = 3000
-        iterations = 1000000
+        iterations = 1000
 
-        ising.simulate(True, t, n, iterations, path)
-        print(f'finished simulation with temp {t} and N {n}')
+        # ising.simulate(True, t, n, iterations, path)
+        mags_exps[0,index] = energy_avgs[0,index] = specific_heat_avgs[0,index] = n
+        mags_exps[1,index] = energy_avgs[1,index] = specific_heat_avgs[1,index] = t
+        mags_exps[2,index], mags_exps[3,index] = data_average_magnetization(f'resultados/mags_{path}.npy')
+        energy_avgs[2,index], energy_avgs[3,index] = data_mean_energy(n, f'resultados/energies_{path}.npy')
+        specific_heat_avgs[2,index], specific_heat_avgs[3, index] = data_average_specific_heat(n, t, f'resultados/energies_{path}.npy')
+        print(f'finished simulation {index+1} of {len(T)*len(N)} with temp {t} and N {n}')
     except Exception as e:
-        print(f"Exception: {e}")
+        print(f"Exception in thread {index}: {e}")
 
-def calculate_data(temp_N_pair : tuple[float, int], index):
-    global mags_exps, energy_avgs, specific_heat_avgs
-    t = temp_N_pair[0]
-    n = temp_N_pair[1]
-    path = f'N_{n}_temp_{t:.2f}'
-
-    mags_exps[0,index] = energy_avgs[0,index] = specific_heat_avgs[0,index] = n
-    mags_exps[1,index] = energy_avgs[1,index] = specific_heat_avgs[1,index] = t
-    mags_exps[2,index], mags_exps[3,index] = data_average_magnetization(f'resultados/mags_{path}.npy')
-    energy_avgs[2,index], energy_avgs[3,index] = data_mean_energy(n, f'resultados/energies_{path}.npy')
-    specific_heat_avgs[2,index], specific_heat_avgs[3, index] = data_average_specific_heat(n, t, f'resultados/energies_{path}.npy')
-    print(f'finished simulation {index+1} of {len(T)*len(N)} with temp {t} and N {n}')
-
-with ProcessPoolExecutor(max_workers=14) as executor:
-    executor.map(run_simulation, product(T, N))
+# with ProcessPoolExecutor(max_workers=14) as executor:
+#     executor.map(simulate_and_compute, product(T, N), range(len(T)*len(N)))
 
 for index, t in enumerate(T):
     for j, n in enumerate(N):
-        calculate_data((t, n), index*len(N)+j)
+        simulate_and_compute((t, n), index*len(N)+j)
 
 # @njit(parallel=True)
 # def parallel_function():
