@@ -45,36 +45,41 @@ def plot_voluntario():
     data_errs = [np.load(f'resultados/matrices_voluntario/stderr_matrix_{name}.npy') for name in ['mags', 'energies', 'heats']]
 
     # Create figures and axes
-    figs, axes = zip(*[plt.subplots(2) for _ in range(3)])
+    figs, axes = zip(*[plt.subplots(ncols=2, figsize=(6, 6), constrained_layout=True) for _ in range(3)])
 
     N = np.array([16, 32, 64, 128])
-    T = np.array([1.50, 1.72, 1.94, 2.17, 2.39, 2.61, 2.83, 3.06, 3.28, 3.50])
+    # T = np.array([1.50, 1.72, 1.94, 2.17, 2.39, 2.61, 2.83, 3.06, 3.28, 3.50])
+    T = np.array([2.15, 2.19, 2.23, 2.27, 2.31, 2.34, 2.38, 2.42, 2.46, 2.50])
 
-    labels = ['Magnetización promedio', 'Energía promedio', 'Calor específico']
-    titles = ['Evolución de la magnetización promedio en función de la temperatura', 'Evolución de la energía promedio en función de la temperatura', 'Evolución del calor específico en función de la temperatura']
+    labels = ['Average Magnetization', 'Average Energy', 'Specific Heat']
+    # titles = ['Evolution of average magnetization as a function of temperature', 'Evolution of average energy as a function of temperature', 'Evolution of specific heat as a function of temperature']
 
-    for avgs, errs, axs, label, title in zip(data_avgs, data_errs, axes, labels, titles):
+    for avgs, errs, axs, label in zip(data_avgs, data_errs, axes, labels):
         for i in range(1, 5):
+            # Normalization of the energy, if you comment this line, the energy will be plotted as it appears in the slides
+            if label == 'Average Energy':
+                avgs[1:, i] = avgs[1:, i]/(N[i-1])
+                errs[1:, i] = errs[1:, i]/(N[i-1])
             axs[0].errorbar(avgs[1:, 0], avgs[1:, i], yerr=np.abs(errs[1:, i]), label=f'N = {N[i-1]}', marker='o', markersize=3, capsize=3)
         for i in range(1, 11):
             axs[1].errorbar(avgs[0, 1:], avgs[i, 1:], yerr=np.abs(errs[i, 1:]), label=f'T = {T[i-1]}', marker='o', markersize=3, capsize=3)
 
-        axs[0].set_xlabel('Temperaturas (KT)')
+        axs[0].set_xlabel('Temperatures (KT)')
         axs[0].set_ylabel(label)
         axs[1].set_xlabel('N')
         axs[1].set_ylabel(label)
 
-        axs[0].set_title(title)
-        axs[1].set_title(f'Evolución de {label.lower()} en función de N')
+        axs[0].set_title(f'Evolution of {label.lower()} as a function of temperature')
+        axs[1].set_title(f'Evolution of {label.lower()} as a function of N')
 
         axs[0].legend(loc=2, bbox_to_anchor=(1, 1))
         axs[1].legend(loc=2, bbox_to_anchor=(1, 1))
 
-        axs[0].set_xticks(avgs[1:, 0])
+        axs[0].set_xticks(T)
         axs[1].set_xticks(N)
 
     corrfig, corrax = plt.subplots(2, 2, figsize=(10, 10))
-    corrfig.suptitle('Correlación en función de la distancia')
+    corrfig.suptitle('Correlation as a function of distance')
 
     files = glob.glob('resultados/correlations_global_N_*_temp_*.npy')
 
@@ -96,12 +101,12 @@ def plot_voluntario():
         t = float(t.split('.npy')[0]) 
         corrdata = np.load(file)
         # print(np.where(N == n)[0][0])
-        corrax[convert_index(np.where(N == n)[0][0])].errorbar(np.arange(len(corrdata[0])), corrdata[0], yerr=np.abs(corrdata[1]), label=f'T = {t:.2f}')
+        corrax[convert_index(np.where(N == n)[0][0])].errorbar(np.arange(len(corrdata[0])), corrdata[0], label=f'T = {t:.2f}')
         # matrix[t_values_augmented == t, n_values_augmented == n] = data[0]
 
     for i in range(4):
-        corrax[convert_index(i)].set_ylabel('Correlación')
-        corrax[convert_index(i)].set_xlabel('Distancia (i)')
+        corrax[convert_index(i)].set_ylabel('Correlation')
+        corrax[convert_index(i)].set_xlabel('Distance (i)')
         corrax[convert_index(i)].set_title(f'N = {N[i]}')
         corrax[convert_index(i)].set_xticks(np.arange(N[i]//2))
         corrax[convert_index(i)].set_xticklabels(np.arange(1, N[i]//2+1))
