@@ -5,17 +5,18 @@ def reshape():
     mags = np.load('resultados/mags_exps.npy')
     heats = np.load('resultados/specific_heat_avgs.npy')
     energies = np.load('resultados/energies_avgs.npy')
+    energies_normalized = np.load('resultados/energies_avgs_normalized.npy')
 
-    matrices = [mags, energies, heats]
-    names = ['mags', 'energies', 'heats']
+    matrices = [mags, energies, heats, energies_normalized]
+    names = ['mags', 'energies', 'heats', 'energies_normalized']
     n_values = np.unique(mags[0])
     t_values = np.unique(mags[1])
 
     # n_values_augmented = np.insert(n_values, 0, 0)
     # t_values_augmented = np.insert(np.around(t_values, 2), 0, 0)
 
-    avgs_matrices = [np.zeros((len(t_values)+1, len(n_values)+1)) for _ in range(3)]
-    stderr_matrices = [np.zeros((len(t_values)+1, len(n_values)+1)) for _ in range(3)]
+    avgs_matrices = [np.zeros((len(t_values)+1, len(n_values)+1)) for _ in range(len(matrices))]
+    stderr_matrices = [np.zeros((len(t_values)+1, len(n_values)+1)) for _ in range(len(matrices))]
 
     # files = glob.glob('resultados/correlations_global_N_*_temp_*.txt')
     for index, matrix in enumerate(avgs_matrices):

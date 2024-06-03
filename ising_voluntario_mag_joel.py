@@ -10,6 +10,7 @@ T = np.linspace(1.5, 3.5, 10)
 T = np.sort(T)
 mags_exps = np.zeros((4, len(T)*len(N)))
 energy_avgs = np.zeros((4, len(T)*len(N)))
+energy_avgs_normalized = np.zeros((4, len(T)*len(N)))
 specific_heat_avgs = np.zeros((4, len(T)*len(N)))
 
 # def expected_value(file_mags : str):
@@ -41,9 +42,10 @@ def data_average_magnetization(file_mags : str):
     return np.mean(mags), std_mags
 
 def data_mean_energy(N, file_energies : str):
+    '''Returns a pair of pairs, where the first is normalized by 2N and the second is normalized by 2N^2.'''
     energies = np.load(file_energies)
     std_energies = np.std(energies) / np.sqrt(len(energies))
-    return np.mean(energies)/(2*N), std_energies/(2*N)
+    return (np.mean(energies)/(2*N), std_energies/(2*N)), (np.mean(energies)/(2*N**2), std_energies/(2*N**2))
 
 def data_average_specific_heat(N, t, file_energies : str):
     energies = np.load(file_energies)
@@ -90,10 +92,11 @@ def calculate_data(temp_N_pair : tuple[float, int], index):
     n = temp_N_pair[1]
     path = f'N_{n}_temp_{t:.2f}'
 
-    mags_exps[0,index] = energy_avgs[0,index] = specific_heat_avgs[0,index] = n
-    mags_exps[1,index] = energy_avgs[1,index] = specific_heat_avgs[1,index] = t
+    mags_exps[0,index] = energy_avgs[0,index] = specific_heat_avgs[0,index] = energy_avgs_normalized[0,index] = n
+    mags_exps[1,index] = energy_avgs[1,index] = specific_heat_avgs[1,index] = energy_avgs_normalized[1,index] = t
     mags_exps[2,index], mags_exps[3,index] = data_average_magnetization(f'resultados/mags_{path}.npy')
-    energy_avgs[2,index], energy_avgs[3,index] = data_mean_energy(n, f'resultados/energies_{path}.npy')
+    energy_avgs[2,index], energy_avgs[3,index] = data_mean_energy(n, f'resultados/energies_{path}.npy')[0]
+    energy_avgs_normalized[2,index], energy_avgs_normalized[3,index] = data_mean_energy(n, f'resultados/energies_{path}.npy')[1]
     specific_heat_avgs[2,index], specific_heat_avgs[3, index] = data_average_specific_heat(n, t, f'resultados/energies_{path}.npy')
     print(f'finished simulation {index+1} of {len(T)*len(N)} with temp {t} and N {n}')
 
@@ -117,6 +120,7 @@ for index, t in enumerate(T):
 
 np.save(f'resultados/mags_exps.npy', mags_exps)
 np.save(f'resultados/energies_avgs.npy', energy_avgs)
+np.save(f'resultados/energies_avgs_normalized.npy', energy_avgs_normalized)
 np.save(f'resultados/specific_heat_avgs.npy', specific_heat_avgs)
 
 matrix_reshaper.reshape()
