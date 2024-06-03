@@ -131,7 +131,7 @@ def simulate(sorted : bool, T : float, N : int, num_Monte_Carlo_steps : int, pat
     stop = False
     last_measure_index = len(magnetizations_mcs)-1
     measuring_landmark_iterations = measuring_landmark*Monte_Carlo_step
-    min_landmark = (min_random_array_size // measuring_landmark_iterations + 1) * measuring_landmark_iterations
+    min_landmark = (min_random_array_size // measuring_landmark_iterations + 1) * measuring_landmark_iterations #this marks the first measure point after min_random_array_size
 
     while True:
         if stop:
