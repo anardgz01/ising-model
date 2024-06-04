@@ -67,10 +67,10 @@ def data_average_specific_heat(N, t, file_energies : str):
 #     mags_exps[2,index] = data_average_magnetization(f'resultados/mags_{path}.npy')
 #     print(f'finished simulation {index+1} of {len(T)}')
 
-def run_simulation(temp_N_pair : tuple[float, int]):
+def run_simulation(N_temp_pair : tuple[int, float]):
     try:
-        t = temp_N_pair[0]
-        n = temp_N_pair[1]
+        n = N_temp_pair[0]
+        t = N_temp_pair[1]
         path = f'N_{n}_temp_{t:.2f}'
 
         # if t < 1:
@@ -100,8 +100,14 @@ def calculate_data(temp_N_pair : tuple[float, int], index):
     specific_heat_avgs[2,index], specific_heat_avgs[3, index] = data_average_specific_heat(n, t, f'resultados/energies_{path}.npy')
     print(f'finished simulation {index+1} of {len(T)*len(N)} with temp {t} and N {n}')
 
-with ProcessPoolExecutor(max_workers=14) as executor:
-    executor.map(run_simulation, product(T, N))
+prod = product(N, T)
+# prod_list = list(prod)        # Use these lines to remove specific elements before running
+# prod_list = [(x,y) for x,y in prod_list if not (x==16 and y < 2.39)]
+# print(prod_list)
+# prod = iter(prod_list)
+
+with ProcessPoolExecutor(max_workers=10) as executor:
+    executor.map(run_simulation, prod)
 
 for index, t in enumerate(T):
     for j, n in enumerate(N):
